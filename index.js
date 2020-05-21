@@ -5,6 +5,7 @@ const {
 } = require('apollo-server-express');
 const { resolvers } = require('./resolvers');
 const { typeDefs } = require('./schema');
+import models from './models/index';
 
 const express = require('express');
 const app = express();
@@ -24,6 +25,12 @@ const server = new ApolloServer({
 
 server.applyMiddleware({ app });
 
-app.listen({ port: 8080 }, () =>
-	console.log(`🚀 Server ready at http://localhost:8080${server.graphqlPath}`)
-);
+models.sequelize
+	.sync({ force: true })
+	.then((x) =>
+		app.listen({ port: 8080 }, () =>
+			console.log(
+				`🚀 Server ready at http://localhost:8080${server.graphqlPath}`
+			)
+		)
+	);
