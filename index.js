@@ -3,6 +3,7 @@ import models from './models/index';
 import express from 'express';
 import path from 'path';
 import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
+import cors from 'cors';
 
 // Merge type defs and resolvers
 const typeDefs = mergeTypes(fileLoader(path.join(__dirname, './schema')));
@@ -16,8 +17,9 @@ export const schema = makeExecutableSchema({
 	resolvers,
 });
 
-// Create the server
+// Create the express server
 const app = express();
+
 const server = new ApolloServer({
 	typeDefs,
 	resolvers,
@@ -30,8 +32,8 @@ const server = new ApolloServer({
 	},
 });
 
-// Apply express middleware
-server.applyMiddleware({ app });
+// Apply express middleware to Apollo Server
+server.applyMiddleware({ app, cors });
 
 // Sync local postgresql db & start app in localhost:8080
 models.sequelize
