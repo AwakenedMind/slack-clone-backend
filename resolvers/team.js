@@ -11,4 +11,7 @@ export default {
 			}
 		},
 	},
+	Query: {
+		allTeams: (parent, args, { models, user }) => models.User.findAll(),
+	},
 };
