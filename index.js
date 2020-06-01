@@ -2,11 +2,14 @@ import { ApolloServer, makeExecutableSchema } from 'apollo-server-express';
 import models from './models/index';
 import express from 'express';
 import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
-// import cors from 'cors';
 import path from 'path';
+require('dotenv').config();
 
 // Create the express server
 const app = express();
+
+const SECRET = process.env.JWT_SECRET;
+const SECRET2 = process.env.JWT_SECRET2;
 
 // Merge type defs and resolvers
 const typeDefs = mergeTypes(fileLoader(path.join(__dirname, './schema')));
@@ -27,9 +30,8 @@ const server = new ApolloServer({
 	playground: true,
 	context: {
 		models,
-		user: {
-			id: 1,
-		},
+		SECRET,
+		SECRET2,
 	},
 });
 
