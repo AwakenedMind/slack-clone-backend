@@ -1,13 +1,20 @@
+import { formatErrors } from '../utils/FormatErrors';
+
 // Will pass JWT to the user
 export default {
 	Mutation: {
 		createTeam: async (parent, args, { models, user }) => {
 			try {
 				await models.Team.create({ ...args, owner: user.id });
-				return true;
+				return {
+					ok: true,
+				};
 			} catch (err) {
 				console.log(err);
-				return false;
+				return {
+					ok: false,
+					errors: formatErrors(err),
+				};
 			}
 		},
 	},
