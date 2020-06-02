@@ -21,27 +21,9 @@ export default {
 
 			return res;
 		},
-		register: async (parent, { password, ...otherArgs }, { models }) => {
+		register: async (parent, args, { models }) => {
 			try {
-				if (password.length > 32 || password.length < 5) {
-					let passwordError = [
-						{
-							path: 'password',
-							message: 'The password needs to be between 5 and 32 characters',
-						},
-					];
-					return {
-						ok: false,
-						// errors: formatErrors([...passwordError, ...otherArgs], models)
-						errors: passwordError,
-					};
-				}
-
-				const hashedPassword = await bcrypt.hash(password, 12);
-				const user = await models.User.create({
-					...otherArgs,
-					password: hashedPassword,
-				});
+				const user = await models.User.create(args);
 
 				return {
 					ok: true,
