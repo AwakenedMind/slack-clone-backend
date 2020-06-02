@@ -8,12 +8,16 @@ export default gql`
 		channels: [Channel!]!
 		name: String!
 	}
+	type CreateTeamResponse {
+		ok: Boolean!
+		errors: [Error!]
+	}
 
 	type Query {
 		allTeams(id: Int): String!
 	}
 
 	type Mutation {
-		createTeam(name: String!): Boolean!
+		createTeam(name: String!): CreateTeamResponse!
 	}
 `;
