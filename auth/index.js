@@ -25,44 +25,44 @@ export const createTokens = async (user, secret, secret2) => {
 	return [createToken, createRefreshToken];
 };
 
-export const refreshTokens = async (token, refreshToken, models, SECRET) => {
-	let userId = null;
+export const refreshTokens = async (
+	token,
+	refreshToken,
+	models,
+	SECRET,
+	SECRET2
+) => {
+	let userId = 0;
 	try {
 		const {
 			user: { id },
 		} = jwt.decode(refreshToken);
 		userId = id;
 	} catch (err) {
-		return { ok: false, message: 'Invalid user' };
+		return {};
 	}
 
 	if (!userId) {
-		return { ok: false, message: 'Invalid user' };
+		return {};
+	}
+	// fetch user
+	const user = await models.User.findOne({ where: { id: userId }, raw: true });
+	if (!user) {
+		return {};
 	}
 
-	const user = await models.User.findOne({ where: { id: userId }, raw: true });
-	console.log(user);
-	if (!user) {
-		return { ok: false, message: 'Invalid user' };
-	}
+	const refreshSecret = user.password + SECRET2;
 
 	try {
-		jwt.verify(refreshToken, user.refreshSecret);
+		jwt.verify(refreshToken, refreshSecret);
 	} catch (err) {
-		return { ok: false, message: 'Invalid login' };
+		return {};
 	}
 	const [newToken, newRefreshToken] = await createTokens(
 		user,
 		SECRET,
-		user.refreshSecret
+		refreshSecret
 	);
-
-	console.log({
-		token: newToken,
-		refreshToken: newRefreshToken,
-		user,
-	});
-
 	return {
 		token: newToken,
 		refreshToken: newRefreshToken,
@@ -97,10 +97,6 @@ export const tryLogin = async (email, password, models, SECRET, SECRET2) => {
 		refreshTokenSecret
 	);
 
-	console.log(token);
-	console.log(refreshToken);
-
-	console.log({ ok: true, token, refreshToken });
 	return {
 		ok: true,
 		token,
