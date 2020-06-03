@@ -1,12 +1,19 @@
 import { ApolloServer, makeExecutableSchema } from 'apollo-server-express';
+require('dotenv').config();
 import models from './models/index';
 import express from 'express';
 import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
 import path from 'path';
-require('dotenv').config();
+import { verifyUser } from './auth/VerifyUser';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 
 // Create the express server
 const app = express();
+
+app.use(bodyParser.json());
+app.use(cors());
+app.use(verifyUser);
 
 const SECRET = process.env.JWT_SECRET;
 const SECRET2 = process.env.JWT_SECRET2;
@@ -28,10 +35,14 @@ const server = new ApolloServer({
 	resolvers,
 	cors: true,
 	playground: true,
-	context: {
-		models,
-		SECRET,
-		SECRET2,
+	bodyParserConfig: false,
+	context: ({ req }) => {
+		return {
+			models,
+			user: req.user,
+			SECRET,
+			SECRET2,
+		};
 	},
 });
 
